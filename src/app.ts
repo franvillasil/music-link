@@ -275,6 +275,8 @@ function clearResult(): void {
   resultEl.hidden = true;
   linksEl.innerHTML = "";
   shareEl.hidden = true;
+  prefsEl.hidden = true;
+  pasteButton.classList.replace("button--outline", "button--primary");
 }
 
 function getShareUrl(sourceUrl: string): string {
@@ -369,6 +371,7 @@ function renderResult(result: ResolveResult): void {
   // It comes back as soon as the input is edited or clipboard fails.
   resolveButton.hidden = true;
   manualEntryEl.hidden = true;
+  pasteButton.classList.replace("button--primary", "button--outline");
   linksEl.innerHTML = "";
 
   // The recipient's remembered platform becomes a full-width "Play on X"
@@ -448,12 +451,20 @@ function renderResult(result: ResolveResult): void {
   state.pendingAutoOpen = null;
 
   if (state.fromSharedLink && featuredEntry && getAutoOpen()) {
+    setStatus(`Opening in ${PLATFORM_LABELS[featuredEntry.platformId]}…`);
+
     if (featuredEntry.isSearchFallback) {
-      // No direct link yet — the background upgrade will navigate if it
-      // finds one (see applyDirectLink).
+      // No direct link yet — give the background upgrade a moment to find
+      // one (applyDirectLink navigates as soon as it lands); if nothing
+      // arrives, open the platform search rather than doing nothing.
       state.pendingAutoOpen = featuredEntry.platformId;
+      window.setTimeout(() => {
+        if (state.pendingAutoOpen === featuredEntry.platformId && state.currentResult === result) {
+          state.pendingAutoOpen = null;
+          window.location.href = result.platformLinks[featuredEntry.platformId] || featuredEntry.url;
+        }
+      }, 2600);
     } else {
-      setStatus(`Opening in ${PLATFORM_LABELS[featuredEntry.platformId]}…`);
       window.setTimeout(() => {
         window.location.href = featuredEntry.url;
       }, 900);
