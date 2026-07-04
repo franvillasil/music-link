@@ -98,7 +98,6 @@ const resultEl = queryElement<HTMLElement>("#result");
 const artworkEl = queryElement<HTMLImageElement>("#result-artwork");
 const titleEl = queryElement<HTMLHeadingElement>("#result-title");
 const artistEl = queryElement<HTMLParagraphElement>("#result-artist");
-const labelEl = queryElement<HTMLParagraphElement>("#result-label");
 const linksEl = queryElement<HTMLElement>("#links");
 const shareEl = queryElement<HTMLElement>("#share");
 const shareUrlInput = queryElement<HTMLInputElement>("#share-url");
@@ -274,12 +273,6 @@ function renderResult(result: ResolveResult): void {
 
   titleEl.textContent = result.title || "Track found";
   artistEl.textContent = result.artist || "Artist unavailable";
-  labelEl.textContent = result.sourcePlatform
-    ? `${PLATFORM_LABELS[result.sourcePlatform]} link`
-    : result.confidence === "fallback"
-      ? "Song found"
-      : "Link detected";
-
   if (result.artworkUrl) {
     artworkEl.src = result.artworkUrl;
     artworkEl.hidden = false;
@@ -323,8 +316,7 @@ function renderResult(result: ResolveResult): void {
     return;
   }
 
-  const directCount = platformEntries.filter((entry) => !entry.isSearchFallback).length;
-  setStatus(`${directCount} direct ${directCount === 1 ? "link" : "links"} found.`);
+  setStatus("");
 
   shareUrlInput.value = getShareUrl(state.currentSourceUrl);
   shareEl.hidden = false;
