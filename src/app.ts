@@ -416,7 +416,7 @@ async function findAppleMusicFallback(title?: string, artist?: string): Promise<
 
   // Best-effort: never let this secondary lookup break the main result.
   try {
-    const response = await fetch(requestUrl);
+    const response = await fetch(requestUrl, { signal: AbortSignal.timeout(4000) });
 
     if (!response.ok) {
       return null;
@@ -436,19 +436,6 @@ async function resolveMusicUrl(sourceUrl: string): Promise<ResolveResult> {
   const artworkEntity = getArtworkEntity(response, primaryEntity);
   const platformLinks = buildPlatformLinks(response);
   const sourcePlatform = detectPlatformFromUrl(sourceUrl);
-  let confidence: ResolveResult["confidence"] = "high";
-
-  if (!platformLinks.appleMusic) {
-    const appleMusicUrl = await findAppleMusicFallback(
-      primaryEntity?.title,
-      primaryEntity?.artistName,
-    );
-
-    if (appleMusicUrl) {
-      platformLinks.appleMusic = appleMusicUrl;
-      confidence = "fallback";
-    }
-  }
 
   return {
     title: primaryEntity?.title,
@@ -456,8 +443,31 @@ async function resolveMusicUrl(sourceUrl: string): Promise<ResolveResult> {
     artworkUrl: artworkEntity?.thumbnailUrl,
     sourcePlatform,
     platformLinks,
-    confidence,
+    confidence: "high",
   };
+}
+
+// Runs after the result is already on screen: swaps the Apple Music search
+// button for a direct track link once the iTunes lookup resolves.
+async function upgradeAppleMusicLink(result: ResolveResult): Promise<void> {
+  const directUrl = await findAppleMusicFallback(result.title, result.artist);
+
+  if (!directUrl || state.currentResult !== result) {
+    return;
+  }
+
+  result.platformLinks.appleMusic = directUrl;
+
+  const link = linksEl.querySelector<HTMLAnchorElement>('a[data-platform="appleMusic"]');
+
+  if (!link || !link.classList.contains("platform-link--search")) {
+    return;
+  }
+
+  link.href = directUrl;
+  link.classList.remove("platform-link--search");
+  link.title = `Open in ${PLATFORM_LABELS.appleMusic}`;
+  link.querySelector(".platform-link__search-mark")?.remove();
 }
 
 async function handleResolve(event?: Event): Promise<void> {
@@ -484,6 +494,10 @@ async function handleResolve(event?: Event): Promise<void> {
     const result = await resolveMusicUrl(sourceUrl);
     renderResult(result);
     updateBrowserUrl(sourceUrl);
+
+    if (!result.platformLinks.appleMusic && result.sourcePlatform !== "appleMusic") {
+      void upgradeAppleMusicLink(result);
+    }
   } catch (error) {
     const code = error instanceof Error ? error.message : "unknown";
     let message: string;
@@ -547,6 +561,11 @@ urlInput.addEventListener("paste", () => {
 });
 
 pasteButton.addEventListener("click", async () => {
+  // iOS shows a system paste prompt before resolving readText — give
+  // instant feedback so the tap doesn't feel dead.
+  pasteButton.disabled = true;
+  setStatus("Reading clipboard…");
+
   try {
     const clipboardText = await navigator.clipboard.readText();
 
@@ -555,8 +574,12 @@ pasteButton.addEventListener("click", async () => {
       void handleResolve();
       return;
     }
+
+    setStatus("");
   } catch {
-    // Clipboard read not allowed — fall through to manual focus.
+    setStatus("");
+  } finally {
+    pasteButton.disabled = false;
   }
 
   urlInput.focus();
