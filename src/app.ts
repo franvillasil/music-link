@@ -93,11 +93,13 @@ const state: {
   isLoading: boolean;
   currentResult: ResolveResult | null;
   fromSharedLink: boolean;
+  pendingAutoOpen: PlatformId | null;
 } = {
   currentSourceUrl: "",
   isLoading: false,
   currentResult: null,
   fromSharedLink: false,
+  pendingAutoOpen: null,
 };
 
 function queryElement<T extends Element>(selector: string): T {
@@ -296,12 +298,10 @@ function getSearchFallbackLink(
   const encodedQuery = encodeURIComponent(query);
 
   switch (platformId) {
-    case "spotify": {
-      // Field filters make the exact track the top result instead of a fuzzy list.
-      const filtered =
-        title && artist ? `track:"${title}" artist:"${artist}"` : query;
-      return `https://open.spotify.com/search/${encodeURIComponent(filtered)}`;
-    }
+    // Plain text queries: the mobile apps treat field filters (track:"…")
+    // as literal text and find nothing.
+    case "spotify":
+      return `https://open.spotify.com/search/${encodedQuery}`;
     case "appleMusic":
       return `https://music.apple.com/search?term=${encodedQuery}`;
     case "tidal":
@@ -445,17 +445,19 @@ function renderResult(result: ResolveResult): void {
 
   // Auto-play: incoming shared links jump straight to the saved platform.
   const featuredEntry = featuredIndex >= 0 ? platformEntries[0] : null;
+  state.pendingAutoOpen = null;
 
-  if (
-    state.fromSharedLink &&
-    featuredEntry &&
-    !featuredEntry.isSearchFallback &&
-    getAutoOpen()
-  ) {
-    setStatus(`Opening in ${PLATFORM_LABELS[featuredEntry.platformId]}…`);
-    window.setTimeout(() => {
-      window.location.href = featuredEntry.url;
-    }, 900);
+  if (state.fromSharedLink && featuredEntry && getAutoOpen()) {
+    if (featuredEntry.isSearchFallback) {
+      // No direct link yet — the background upgrade will navigate if it
+      // finds one (see applyDirectLink).
+      state.pendingAutoOpen = featuredEntry.platformId;
+    } else {
+      setStatus(`Opening in ${PLATFORM_LABELS[featuredEntry.platformId]}…`);
+      window.setTimeout(() => {
+        window.location.href = featuredEntry.url;
+      }, 900);
+    }
   }
 
   state.fromSharedLink = false;
@@ -549,27 +551,130 @@ async function resolveMusicUrl(sourceUrl: string): Promise<ResolveResult> {
   };
 }
 
-// Runs after the result is already on screen: swaps the Apple Music search
-// button for a direct track link once the iTunes lookup resolves.
-async function upgradeAppleMusicLink(result: ResolveResult): Promise<void> {
-  const directUrl = await findAppleMusicFallback(result.title, result.artist);
+type MatchResponse = {
+  url?: string | null;
+  isrc?: string | null;
+};
 
-  if (!directUrl || state.currentResult !== result) {
+// Exact-match lookup through our proxy (Deezer public API; Spotify when
+// API credentials are configured on Vercel).
+async function findPlatformMatch(
+  platform: "deezer" | "spotify",
+  result: ResolveResult,
+  isrc?: string | null,
+): Promise<MatchResponse | null> {
+  const apiBase = getApiBase();
+
+  if (!apiBase || !result.title || !result.artist) {
+    return null;
+  }
+
+  const requestUrl = new URL(`${apiBase}/match`, window.location.origin);
+  requestUrl.searchParams.set("platform", platform);
+  requestUrl.searchParams.set("title", result.title);
+  requestUrl.searchParams.set("artist", result.artist);
+  requestUrl.searchParams.set("market", getCountryCode());
+
+  if (isrc) {
+    requestUrl.searchParams.set("isrc", isrc);
+  }
+
+  try {
+    const response = await fetch(requestUrl, { signal: AbortSignal.timeout(5000) });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return (await response.json()) as MatchResponse;
+  } catch {
+    return null;
+  }
+}
+
+// Swaps a search-fallback button for a direct track link, in the grid or
+// in the featured "Play on X" CTA.
+function applyDirectLink(result: ResolveResult, platformId: PlatformId, url: string): void {
+  if (state.currentResult !== result) {
     return;
   }
 
-  result.platformLinks.appleMusic = directUrl;
+  result.platformLinks[platformId] = url;
 
-  const link = linksEl.querySelector<HTMLAnchorElement>('a[data-platform="appleMusic"]');
+  const link = linksEl.querySelector<HTMLAnchorElement>(`a[data-platform="${platformId}"]`);
 
   if (!link || !link.classList.contains("platform-link--search")) {
     return;
   }
 
-  link.href = directUrl;
+  link.href = url;
   link.classList.remove("platform-link--search");
-  link.title = `Open in ${PLATFORM_LABELS.appleMusic}`;
+  link.title = `Open in ${PLATFORM_LABELS[platformId]}`;
   link.querySelector(".platform-link__search-mark")?.remove();
+
+  if (state.pendingAutoOpen === platformId) {
+    state.pendingAutoOpen = null;
+    setStatus(`Opening in ${PLATFORM_LABELS[platformId]}…`);
+    window.setTimeout(() => {
+      window.location.href = url;
+    }, 900);
+  }
+}
+
+// Runs after the result is already on screen: fills in direct links for
+// platforms Odesli couldn't match, without blocking the first render.
+async function upgradePlatformLinks(result: ResolveResult): Promise<void> {
+  const missing = (platformId: PlatformId): boolean =>
+    !result.platformLinks[platformId] && platformId !== result.sourcePlatform;
+
+  const [appleUrl, deezerMatch] = await Promise.all([
+    missing("appleMusic") ? findAppleMusicFallback(result.title, result.artist) : null,
+    missing("deezer") || missing("spotify") ? findPlatformMatch("deezer", result) : null,
+  ]);
+
+  if (state.currentResult !== result) {
+    return;
+  }
+
+  if (appleUrl) {
+    applyDirectLink(result, "appleMusic", appleUrl);
+  }
+
+  if (deezerMatch?.url && missing("deezer")) {
+    applyDirectLink(result, "deezer", deezerMatch.url);
+  }
+
+  if (missing("spotify")) {
+    const spotifyMatch = await findPlatformMatch("spotify", result, deezerMatch?.isrc);
+
+    if (spotifyMatch?.url) {
+      applyDirectLink(result, "spotify", spotifyMatch.url);
+    }
+  }
+
+  // Last resort: re-resolve through Odesli using a link we just found —
+  // a different source entity sometimes unlocks the remaining platforms.
+  const stillMissing = SUPPORTED_PLATFORMS.filter((platform) => missing(platform.id));
+  const seedUrl = appleUrl || deezerMatch?.url;
+
+  if (!stillMissing.length || !seedUrl || state.currentResult !== result) {
+    return;
+  }
+
+  try {
+    const secondPass = await resolveSongLink(seedUrl);
+    const secondLinks = buildPlatformLinks(secondPass);
+
+    stillMissing.forEach((platform) => {
+      const url = secondLinks[platform.id];
+
+      if (url) {
+        applyDirectLink(result, platform.id, url);
+      }
+    });
+  } catch {
+    // Background enrichment only — the visible result is already complete.
+  }
 }
 
 async function handleResolve(event?: Event): Promise<void> {
@@ -597,10 +702,7 @@ async function handleResolve(event?: Event): Promise<void> {
     const result = await resolveMusicUrl(sourceUrl);
     renderResult(result);
     updateBrowserUrl(sourceUrl);
-
-    if (!result.platformLinks.appleMusic && result.sourcePlatform !== "appleMusic") {
-      void upgradeAppleMusicLink(result);
-    }
+    void upgradePlatformLinks(result);
   } catch (error) {
     const code = error instanceof Error ? error.message : "unknown";
     let message: string;
