@@ -129,6 +129,25 @@ function isPlatformId(value: string): value is PlatformId {
   return Object.prototype.hasOwnProperty.call(PLATFORM_LABELS, value);
 }
 
+const PREFERRED_PLATFORM_KEY = "music-link:preferred-platform";
+
+function getPreferredPlatform(): PlatformId | null {
+  try {
+    const stored = window.localStorage.getItem(PREFERRED_PLATFORM_KEY);
+    return stored && isPlatformId(stored) ? stored : null;
+  } catch {
+    return null;
+  }
+}
+
+function savePreferredPlatform(platformId: PlatformId): void {
+  try {
+    window.localStorage.setItem(PREFERRED_PLATFORM_KEY, platformId);
+  } catch {
+    // Private mode without storage — the tap still opens the link.
+  }
+}
+
 function getCountryCode(): string {
   const locale = navigator.language || "en-US";
   const country = locale.split("-")[1];
@@ -322,11 +341,25 @@ function renderResult(result: ResolveResult): void {
   resultEl.hidden = false;
   linksEl.innerHTML = "";
 
-  platformEntries.forEach(({ platformId, url, isSearchFallback }) => {
+  // The recipient's remembered platform becomes a full-width "Play on X"
+  // CTA at the top of the grid, so a shared link is one tap to listen.
+  const preferredPlatform = getPreferredPlatform();
+  const featuredIndex = platformEntries.findIndex(
+    (entry) =>
+      entry.platformId === preferredPlatform && entry.platformId !== result.sourcePlatform,
+  );
+
+  if (featuredIndex > 0) {
+    const [featured] = platformEntries.splice(featuredIndex, 1);
+    platformEntries.unshift(featured);
+  }
+
+  platformEntries.forEach(({ platformId, url, isSearchFallback }, index) => {
     const link = document.createElement("a");
     const icon = document.createElement("span");
     const name = document.createElement("span");
     const isSource = platformId === result.sourcePlatform;
+    const isFeatured = index === 0 && featuredIndex >= 0 && platformId === preferredPlatform;
 
     link.className = [
       "button",
@@ -334,6 +367,7 @@ function renderResult(result: ResolveResult): void {
       `platform-link--${platformId}`,
       isSearchFallback ? "platform-link--search" : "",
       isSource ? "platform-link--source" : "",
+      isFeatured ? "platform-link--featured" : "",
     ]
       .filter(Boolean)
       .join(" ");
@@ -351,13 +385,19 @@ function renderResult(result: ResolveResult): void {
     icon.innerHTML = PLATFORM_ICONS[platformId];
 
     name.className = "platform-link__name";
-    name.textContent = PLATFORM_LABELS[platformId];
+    name.textContent = isFeatured
+      ? `Play on ${PLATFORM_LABELS[platformId]}`
+      : PLATFORM_LABELS[platformId];
 
     link.append(icon, name);
 
     if (isSearchFallback) {
       link.insertAdjacentHTML("beforeend", SEARCH_MARK);
     }
+
+    link.addEventListener("click", () => {
+      savePreferredPlatform(platformId);
+    });
 
     linksEl.appendChild(link);
   });

@@ -511,6 +511,38 @@ input:focus {
   flex: 0 0 auto;
 }
 
+.platform-link--featured {
+  grid-column: 1 / -1;
+  min-height: 58px;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  border-color: transparent;
+  color: #1c0805;
+  box-shadow: 0 10px 34px rgba(250, 106, 96, 0.25);
+}
+
+.platform-link--featured:hover {
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  filter: brightness(1.05);
+}
+
+.platform-link--featured .platform-link__icon {
+  background: rgba(28, 8, 5, 0.14);
+  color: #1c0805;
+  box-shadow: none;
+}
+
+.platform-link--featured .platform-link__name {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.platform-link--featured .platform-link__search-mark {
+  margin-left: 2px;
+  color: rgba(28, 8, 5, 0.55);
+}
+
 .platform-link--source {
   opacity: 0.45;
 }
