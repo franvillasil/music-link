@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Paste a music link and open the same song in Spotify, Apple Music, TIDAL, YouTube Music, Deezer, or Amazon Music."
+    />
+    <meta name="theme-color" content="#f7f2e7" />
+    <title>Open Music Link</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero" aria-labelledby="page-title">
+        <div class="hero__copy">
+          <p class="eyebrow">Music link converter</p>
+          <h1 id="page-title">Open a song wherever you listen.</h1>
+          <p class="lead">
+            Paste a Spotify, Apple Music, TIDAL, YouTube Music, Deezer, or Amazon Music link
+            and get direct open buttons for the platforms found.
+          </p>
+        </div>
+      </section>
+
+      <section class="tool" aria-label="Music link converter">
+        <form class="resolver" id="resolver-form">
+          <label class="field">
+            <span>Music link</span>
+            <input
+              id="music-url"
+              name="url"
+              type="url"
+              inputmode="url"
+              autocomplete="url"
+              placeholder="https://open.spotify.com/track/..."
+              required
+            />
+          </label>
+
+          <label class="field field--compact">
+            <span>My platform</span>
+            <select id="preferred-platform" name="platform">
+              <option value="spotify">Spotify</option>
+              <option value="appleMusic">Apple Music</option>
+              <option value="tidal">TIDAL</option>
+              <option value="youtubeMusic">YouTube Music</option>
+              <option value="deezer">Deezer</option>
+              <option value="amazonMusic">Amazon Music</option>
+            </select>
+          </label>
+
+          <button class="button button--primary" id="resolve-button" type="submit">
+            Search links
+          </button>
+        </form>
+
+        <p class="status" id="status" role="status" aria-live="polite"></p>
+
+        <article class="result" id="result" hidden>
+          <img class="result__artwork" id="result-artwork" alt="" />
+          <div class="result__meta">
+            <p class="result__label" id="result-label">Song found</p>
+            <h2 id="result-title"></h2>
+            <p id="result-artist"></p>
+          </div>
+        </article>
+
+        <section class="links" id="links" aria-label="Available platforms"></section>
+
+        <section class="share" id="share" hidden>
+          <label class="field">
+            <span>Share this converter link</span>
+            <div class="copy-row">
+              <input id="share-url" type="text" readonly />
+              <button class="button button--secondary" id="copy-share-url" type="button">
+                Copy
+              </button>
+            </div>
+          </label>
+        </section>
+      </section>
+    </main>
+
+    <script src="./dist/app.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "Open Music Link",
+  "short_name": "Music Links",
+  "description": "Open a shared music link in your preferred listening platform.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f7f2e7",
+  "theme_color": "#0f6b5d",
+  "icons": []
+}
