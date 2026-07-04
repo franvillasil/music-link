@@ -41,6 +41,12 @@ type ResolveResult = {
   confidence: "high" | "fallback";
 };
 
+type PlatformEntry = {
+  platformId: PlatformId;
+  url: string;
+  isSearchFallback: boolean;
+};
+
 type ITunesSearchResponse = {
   results?: Array<{
     trackViewUrl?: string;
@@ -67,9 +73,11 @@ const PLATFORM_LABELS = SUPPORTED_PLATFORMS.reduce(
 const state: {
   currentSourceUrl: string;
   isLoading: boolean;
+  currentResult: ResolveResult | null;
 } = {
   currentSourceUrl: "",
   isLoading: false,
+  currentResult: null,
 };
 
 function queryElement<T extends Element>(selector: string): T {
@@ -193,14 +201,64 @@ function getShareUrl(sourceUrl: string, platformId: PlatformId): string {
   return shareUrl.toString();
 }
 
-function renderResult(result: ResolveResult): void {
-  const preferredPlatform = getPreferredPlatform();
-  const platformEntries = Object.entries(result.platformLinks) as Array<[PlatformId, string]>;
+function getSearchFallbackLink(
+  platformId: PlatformId,
+  title?: string,
+  artist?: string,
+): string | null {
+  const query = [title, artist].filter(Boolean).join(" ").trim();
 
-  platformEntries.sort(([left], [right]) => {
-    if (left === preferredPlatform) return -1;
-    if (right === preferredPlatform) return 1;
-    return PLATFORM_LABELS[left].localeCompare(PLATFORM_LABELS[right]);
+  if (!query) {
+    return null;
+  }
+
+  const encodedQuery = encodeURIComponent(query);
+
+  switch (platformId) {
+    case "spotify":
+      return `https://open.spotify.com/search/${encodedQuery}`;
+    case "appleMusic":
+      return `https://music.apple.com/search?term=${encodedQuery}`;
+    case "tidal":
+      return `https://tidal.com/search?q=${encodedQuery}`;
+    case "youtubeMusic":
+      return `https://music.youtube.com/search?q=${encodedQuery}`;
+    case "deezer":
+      return `https://www.deezer.com/search/${encodedQuery}`;
+    case "amazonMusic":
+      return `https://music.amazon.com/search/${encodedQuery}`;
+    default:
+      return null;
+  }
+}
+
+function renderResult(result: ResolveResult): void {
+  state.currentResult = result;
+
+  const preferredPlatform = getPreferredPlatform();
+  const platformEntries: PlatformEntry[] = (
+    Object.entries(result.platformLinks) as Array<[PlatformId, string]>
+  ).map(([platformId, url]) => ({
+    platformId,
+    url,
+    isSearchFallback: false,
+  }));
+  const preferredSearchFallback = result.platformLinks[preferredPlatform]
+    ? null
+    : getSearchFallbackLink(preferredPlatform, result.title, result.artist);
+
+  if (preferredSearchFallback) {
+    platformEntries.push({
+      platformId: preferredPlatform,
+      url: preferredSearchFallback,
+      isSearchFallback: true,
+    });
+  }
+
+  platformEntries.sort((left, right) => {
+    if (left.platformId === preferredPlatform) return -1;
+    if (right.platformId === preferredPlatform) return 1;
+    return PLATFORM_LABELS[left.platformId].localeCompare(PLATFORM_LABELS[right.platformId]);
   });
 
   titleEl.textContent = result.title || "Track found";
@@ -218,7 +276,7 @@ function renderResult(result: ResolveResult): void {
   resultEl.hidden = false;
   linksEl.innerHTML = "";
 
-  platformEntries.forEach(([platformId, url]) => {
+  platformEntries.forEach(({ platformId, url, isSearchFallback }) => {
     const link = document.createElement("a");
     const marker = document.createElement("span");
     const label = document.createElement("span");
@@ -231,7 +289,7 @@ function renderResult(result: ResolveResult): void {
     link.dataset.platform = platformId;
 
     marker.className = "platform-link__mark";
-    label.textContent = `Open in ${PLATFORM_LABELS[platformId]}`;
+    label.textContent = `${isSearchFallback ? "Search in" : "Open in"} ${PLATFORM_LABELS[platformId]}`;
 
     link.append(marker, label);
     linksEl.appendChild(link);
@@ -246,6 +304,8 @@ function renderResult(result: ResolveResult): void {
   setStatus(
     preferredFound
       ? `Ready to open in ${PLATFORM_LABELS[preferredPlatform]}.`
+      : preferredSearchFallback
+        ? `Exact ${PLATFORM_LABELS[preferredPlatform]} link was not found; search is available.`
       : "Your preferred platform was not found, but other links are available.",
   );
 
@@ -391,17 +451,9 @@ preferredPlatformSelect.addEventListener("change", () => {
     shareUrlInput.value = getShareUrl(state.currentSourceUrl, preferredPlatform);
     updateBrowserUrl(state.currentSourceUrl, preferredPlatform);
 
-    const activeLink = linksEl.querySelector(".platform-link--preferred");
-    activeLink?.classList.remove("platform-link--preferred");
-
-    const nextActiveLink = linksEl.querySelector(`[data-platform="${preferredPlatform}"]`);
-    nextActiveLink?.classList.add("platform-link--preferred");
-
-    setStatus(
-      nextActiveLink
-        ? `Ready to open in ${PLATFORM_LABELS[preferredPlatform]}.`
-        : "Your preferred platform was not found, but other links are available.",
-    );
+    if (state.currentResult) {
+      renderResult(state.currentResult);
+    }
   }
 });
 
