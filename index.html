@@ -12,7 +12,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
-    <link rel="stylesheet" href="./styles.css?v=20260704-11" />
+    <link rel="stylesheet" href="./styles.css?v=20260704-12" />
   </head>
   <body>
     <div class="glow glow--one" aria-hidden="true"></div>
@@ -28,7 +28,15 @@
 
       <section class="tool" aria-label="Music link converter">
         <form class="resolver" id="resolver-form">
-          <div class="input-wrap">
+          <button class="button button--primary" id="paste-button" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+              <rect x="8" y="2" width="8" height="4" rx="1" />
+            </svg>
+            <span id="paste-button-label">Paste music link</span>
+          </button>
+
+          <div class="input-wrap" id="manual-entry" hidden>
             <svg class="input-wrap__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
               <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
               <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
@@ -41,16 +49,12 @@
               autocomplete="off"
               autocapitalize="off"
               spellcheck="false"
-              placeholder="Paste a song link…"
+              placeholder="https://open.spotify.com/track/…"
               aria-label="Music link"
-              required
             />
-            <button class="paste-button" id="paste-button" type="button" aria-label="Paste from clipboard">
-              Paste
-            </button>
           </div>
 
-          <button class="button button--primary" id="resolve-button" type="submit">
+          <button class="button button--secondary" id="resolve-button" type="submit" hidden>
             <span class="button__label">Find song</span>
           </button>
         </form>
@@ -82,6 +86,14 @@
 
         <section class="links" id="links" aria-label="Available platforms"></section>
 
+        <section class="prefs" id="prefs" hidden>
+          <label class="prefs__toggle">
+            <input type="checkbox" id="auto-open-toggle" />
+            <span class="prefs__track" aria-hidden="true"></span>
+            <span class="prefs__label" id="auto-open-label">Open automatically</span>
+          </label>
+        </section>
+
         <section class="share" id="share" hidden>
           <button class="button button--outline" id="share-button" type="button">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -99,7 +111,7 @@
       </footer>
     </main>
 
-    <script src="./config.js?v=20260704-11"></script>
-    <script src="./dist/app.js?v=20260704-11" defer></script>
+    <script src="./config.js?v=20260704-12"></script>
+    <script src="./dist/app.js?v=20260704-12" defer></script>
   </body>
 </html>

@@ -167,7 +167,7 @@ input {
   pointer-events: none;
 }
 
-input {
+.input-wrap input {
   width: 100%;
   min-height: 58px;
   border: 1px solid var(--line);
@@ -175,37 +175,17 @@ input {
   background: #000000;
   color: var(--text);
   outline: none;
-  padding: 0 84px 0 46px;
+  padding: 0 16px 0 46px;
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 
-input::placeholder {
+.input-wrap input::placeholder {
   color: var(--faint);
 }
 
-input:focus {
+.input-wrap input:focus {
   border-color: rgba(250, 106, 96, 0.65);
   box-shadow: 0 0 0 4px rgba(250, 106, 96, 0.12);
-}
-
-.paste-button {
-  position: absolute;
-  right: 8px;
-  min-height: 40px;
-  padding: 0 14px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--muted);
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: color 140ms ease, background 140ms ease;
-}
-
-.paste-button:hover {
-  color: var(--text);
-  background: rgba(255, 255, 255, 0.1);
 }
 
 .button {
@@ -245,6 +225,11 @@ input:focus {
   padding: 0 20px;
   font-size: 1.02rem;
   box-shadow: 0 10px 34px rgba(250, 106, 96, 0.28);
+}
+
+.button--primary svg {
+  width: 19px;
+  height: 19px;
 }
 
 .button--outline {
@@ -545,6 +530,67 @@ input:focus {
 
 .platform-link--source {
   opacity: 0.45;
+}
+
+/* ---------- prefs ---------- */
+
+.prefs {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+}
+
+.prefs__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 6px 4px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.prefs__toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.prefs__track {
+  position: relative;
+  width: 38px;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  transition: background 180ms ease;
+  flex: 0 0 auto;
+}
+
+.prefs__track::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--text);
+  transition: transform 180ms ease;
+}
+
+.prefs__toggle input:checked + .prefs__track {
+  background: var(--accent);
+}
+
+.prefs__toggle input:checked + .prefs__track::after {
+  transform: translateX(16px);
+  background: #1c0805;
+}
+
+.prefs__toggle input:checked ~ .prefs__label {
+  color: var(--text);
 }
 
 /* ---------- share ---------- */

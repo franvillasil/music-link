@@ -92,10 +92,12 @@ const state: {
   currentSourceUrl: string;
   isLoading: boolean;
   currentResult: ResolveResult | null;
+  fromSharedLink: boolean;
 } = {
   currentSourceUrl: "",
   isLoading: false,
   currentResult: null,
+  fromSharedLink: false,
 };
 
 function queryElement<T extends Element>(selector: string): T {
@@ -112,6 +114,11 @@ const form = queryElement<HTMLFormElement>("#resolver-form");
 const urlInput = queryElement<HTMLInputElement>("#music-url");
 const resolveButton = queryElement<HTMLButtonElement>("#resolve-button");
 const pasteButton = queryElement<HTMLButtonElement>("#paste-button");
+const pasteButtonLabel = queryElement<HTMLElement>("#paste-button-label");
+const manualEntryEl = queryElement<HTMLElement>("#manual-entry");
+const prefsEl = queryElement<HTMLElement>("#prefs");
+const autoOpenToggle = queryElement<HTMLInputElement>("#auto-open-toggle");
+const autoOpenLabel = queryElement<HTMLElement>("#auto-open-label");
 const hintEl = queryElement<HTMLParagraphElement>("#hint");
 const loaderEl = queryElement<HTMLElement>("#loader");
 const statusEl = queryElement<HTMLParagraphElement>("#status");
@@ -130,6 +137,7 @@ function isPlatformId(value: string): value is PlatformId {
 }
 
 const PREFERRED_PLATFORM_KEY = "music-link:preferred-platform";
+const AUTO_OPEN_KEY = "music-link:auto-open";
 
 function getPreferredPlatform(): PlatformId | null {
   try {
@@ -145,6 +153,22 @@ function savePreferredPlatform(platformId: PlatformId): void {
     window.localStorage.setItem(PREFERRED_PLATFORM_KEY, platformId);
   } catch {
     // Private mode without storage — the tap still opens the link.
+  }
+}
+
+function getAutoOpen(): boolean {
+  try {
+    return window.localStorage.getItem(AUTO_OPEN_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function saveAutoOpen(enabled: boolean): void {
+  try {
+    window.localStorage.setItem(AUTO_OPEN_KEY, enabled ? "1" : "0");
+  } catch {
+    // Private mode without storage.
   }
 }
 
@@ -232,9 +256,11 @@ function buildPlatformLinks(response: SongLinkResponse): Partial<Record<Platform
 function setLoading(isLoading: boolean): void {
   state.isLoading = isLoading;
   resolveButton.disabled = isLoading;
+  pasteButton.disabled = isLoading;
   resolveButton.querySelector(".button__label")!.textContent = isLoading
     ? "Searching…"
     : "Find song";
+  pasteButtonLabel.textContent = isLoading ? "Searching…" : "Paste music link";
   loaderEl.hidden = !isLoading;
 }
 
@@ -339,9 +365,10 @@ function renderResult(result: ResolveResult): void {
   }
 
   resultEl.hidden = false;
-  // The song is found — the search CTA would compete with "Play on X".
-  // It comes back as soon as the input is edited.
+  // The song is found — the search UI would compete with "Play on X".
+  // It comes back as soon as the input is edited or clipboard fails.
   resolveButton.hidden = true;
+  manualEntryEl.hidden = true;
   linksEl.innerHTML = "";
 
   // The recipient's remembered platform becomes a full-width "Play on X"
@@ -400,6 +427,7 @@ function renderResult(result: ResolveResult): void {
 
     link.addEventListener("click", () => {
       savePreferredPlatform(platformId);
+      updatePrefsRow();
     });
 
     linksEl.appendChild(link);
@@ -413,6 +441,37 @@ function renderResult(result: ResolveResult): void {
   setStatus("");
 
   shareEl.hidden = false;
+  updatePrefsRow();
+
+  // Auto-play: incoming shared links jump straight to the saved platform.
+  const featuredEntry = featuredIndex >= 0 ? platformEntries[0] : null;
+
+  if (
+    state.fromSharedLink &&
+    featuredEntry &&
+    !featuredEntry.isSearchFallback &&
+    getAutoOpen()
+  ) {
+    setStatus(`Opening in ${PLATFORM_LABELS[featuredEntry.platformId]}…`);
+    window.setTimeout(() => {
+      window.location.href = featuredEntry.url;
+    }, 900);
+  }
+
+  state.fromSharedLink = false;
+}
+
+function updatePrefsRow(): void {
+  const preferred = getPreferredPlatform();
+
+  if (!preferred || !state.currentResult) {
+    prefsEl.hidden = true;
+    return;
+  }
+
+  prefsEl.hidden = false;
+  autoOpenToggle.checked = getAutoOpen();
+  autoOpenLabel.textContent = `Open ${PLATFORM_LABELS[preferred]} automatically`;
 }
 
 async function resolveSongLink(sourceUrl: string): Promise<SongLinkResponse> {
@@ -522,8 +581,9 @@ async function handleResolve(event?: Event): Promise<void> {
   try {
     sourceUrl = normalizeUrl(urlInput.value);
   } catch {
+    manualEntryEl.hidden = false;
     setStatus(
-      "Paste a valid Spotify, Apple Music, TIDAL, YouTube Music, Deezer, or Amazon Music URL.",
+      "That doesn't look like a music link — paste a Spotify, Apple Music, TIDAL, YouTube Music, Deezer, or Amazon Music URL.",
       "error",
     );
     return;
@@ -587,6 +647,7 @@ function restoreInitialState(): void {
   const queryUrl = [params.get("url"), params.get("su")].filter(Boolean).join(" ");
 
   if (queryUrl) {
+    state.fromSharedLink = true;
     urlInput.value = queryUrl;
     void handleResolve();
   }
@@ -609,29 +670,53 @@ urlInput.addEventListener("paste", () => {
   }, 0);
 });
 
+function showManualEntry(message: string): void {
+  manualEntryEl.hidden = false;
+  setStatus(message);
+  urlInput.focus();
+}
+
 pasteButton.addEventListener("click", async () => {
   // iOS shows a system paste prompt before resolving readText — give
   // instant feedback so the tap doesn't feel dead.
   pasteButton.disabled = true;
-  setStatus("Reading clipboard…");
+  pasteButtonLabel.textContent = "Reading clipboard…";
+  setStatus("");
 
   try {
-    const clipboardText = await navigator.clipboard.readText();
+    const clipboardText = (await navigator.clipboard.readText()).trim();
 
-    if (clipboardText.trim()) {
-      urlInput.value = clipboardText.trim();
+    if (clipboardText) {
+      urlInput.value = clipboardText;
       void handleResolve();
       return;
     }
 
-    setStatus("");
+    showManualEntry("Your clipboard is empty — paste the link here instead.");
   } catch {
-    setStatus("");
+    showManualEntry("Couldn't read the clipboard — paste the link here instead.");
   } finally {
     pasteButton.disabled = false;
+    pasteButtonLabel.textContent = "Paste music link";
+  }
+});
+
+// Desktop convenience: pasting anywhere on the page resolves directly.
+document.addEventListener("paste", (event) => {
+  if (event.target === urlInput) {
+    return;
   }
 
-  urlInput.focus();
+  const text = event.clipboardData?.getData("text")?.trim();
+
+  if (text) {
+    urlInput.value = text;
+    void handleResolve();
+  }
+});
+
+autoOpenToggle.addEventListener("change", () => {
+  saveAutoOpen(autoOpenToggle.checked);
 });
 
 shareButton.addEventListener("click", async () => {
