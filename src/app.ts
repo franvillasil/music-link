@@ -66,22 +66,19 @@ const PLATFORM_ICONS: Record<PlatformId, string> = {
   spotify:
     '<svg viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>',
   appleMusic:
-    '<svg viewBox="0 0 24 24"><path d="M17.1 2 8.6 3.87a.83.83 0 0 0-.65.81v10.45a3.57 3.57 0 0 0-1.7-.43c-1.8 0-3.25 1.24-3.25 2.77S4.45 20.24 6.25 20.25c1.8 0 3.26-1.24 3.26-2.78V8.68l7.42-1.63v6.13a3.6 3.6 0 0 0-1.68-.41c-1.8 0-3.26 1.24-3.26 2.77s1.46 2.78 3.26 2.78S18.5 17.08 18.5 15.54V2.81A.83.83 0 0 0 17.1 2z"/></svg>',
+    '<svg viewBox="0 0 24 24"><path d="M23.994 6.124a9.23 9.23 0 00-.24-2.19c-.317-1.31-1.062-2.31-2.18-3.043a5.022 5.022 0 00-1.877-.726 10.496 10.496 0 00-1.564-.15c-.04-.003-.083-.01-.124-.013H5.986c-.152.01-.303.017-.455.026-.747.043-1.49.123-2.193.4-1.336.53-2.3 1.452-2.865 2.78-.192.448-.292.925-.363 1.408-.056.392-.088.785-.1 1.18 0 .032-.007.062-.01.093v12.223c.01.14.017.283.027.424.05.815.154 1.624.497 2.373.65 1.42 1.738 2.353 3.234 2.801.42.127.856.187 1.293.228.555.053 1.11.06 1.667.06h11.03a12.5 12.5 0 001.57-.1c.822-.106 1.596-.35 2.295-.81a5.046 5.046 0 001.88-2.207c.186-.42.293-.87.37-1.324.113-.675.138-1.358.137-2.04-.002-3.8 0-7.595-.003-11.393zm-6.423 3.99v5.712c0 .417-.058.827-.244 1.206-.29.59-.76.962-1.388 1.14-.35.1-.706.157-1.07.173-.95.045-1.773-.6-1.943-1.536a1.88 1.88 0 011.038-2.022c.323-.16.67-.25 1.018-.324.378-.082.758-.153 1.134-.24.274-.063.457-.23.51-.516a.904.904 0 00.02-.193c0-1.815 0-3.63-.002-5.443a.725.725 0 00-.026-.185c-.04-.15-.15-.243-.304-.234-.16.01-.318.035-.475.066-.76.15-1.52.303-2.28.456l-2.325.47-1.374.278c-.016.003-.032.01-.048.013-.277.077-.377.203-.39.49-.002.042 0 .086 0 .13-.002 2.602 0 5.204-.003 7.805 0 .42-.047.836-.215 1.227-.278.64-.77 1.04-1.434 1.233-.35.1-.71.16-1.075.172-.96.036-1.755-.6-1.92-1.544-.14-.812.23-1.685 1.154-2.075.357-.15.73-.232 1.108-.31.287-.06.575-.116.86-.177.383-.083.583-.323.6-.714v-.15c0-2.96 0-5.922.002-8.882 0-.123.013-.25.042-.37.07-.285.273-.448.546-.518.255-.066.515-.112.774-.165.733-.15 1.466-.296 2.2-.444l2.27-.46c.67-.134 1.34-.27 2.01-.403.22-.043.442-.088.663-.106.31-.025.523.17.554.482.008.073.012.148.012.223.002 1.91.002 3.822 0 5.732z"/></svg>',
   tidal:
     '<svg viewBox="0 0 24 24"><path d="M12.012 3.992 8.008 7.996 4.004 3.992 0 7.996l4.004 4.004L8.008 8l4.004 4.004L8.008 16.01l4.004 4.004 4.004-4.004L12.012 12l4.004-4.004-4.004-4.004zm7.984 0-4.004 4.004L20 12l4-4.004-4.004-4.004z"/></svg>',
   youtubeMusic:
-    '<svg viewBox="0 0 24 24"><path d="M12 0C5.376 0 0 5.376 0 12s5.376 12 12 12 12-5.376 12-12S18.624 0 12 0zm0 19.104c-3.924 0-7.104-3.18-7.104-7.104S8.076 4.896 12 4.896s7.104 3.18 7.104 7.104-3.18 7.104-7.104 7.104zm-2.316-3.564L15.816 12 9.684 8.46v7.08z"/></svg>',
+    '<svg viewBox="0 0 24 24"><path d="M12 0C5.376 0 0 5.376 0 12s5.376 12 12 12 12-5.376 12-12S18.624 0 12 0zm0 19.104c-3.924 0-7.104-3.18-7.104-7.104S8.076 4.896 12 4.896s7.104 3.18 7.104 7.104-3.18 7.104-7.104 7.104zm0-13.332c-3.432 0-6.228 2.796-6.228 6.228S8.568 18.228 12 18.228s6.228-2.796 6.228-6.228S15.432 5.772 12 5.772zM9.684 15.54V8.46L15.816 12l-6.132 3.54z"/></svg>',
   deezer:
-    '<svg viewBox="0 0 24 24"><path d="M18.81 4.16v3.03H24V4.16h-5.19zM6.27 8.38v3.027h5.189V8.38h-5.19zm12.54 0v3.027H24V8.38h-5.19zM0 12.594v3.027h5.19v-3.027H0zm6.27 0v3.027h5.189v-3.027h-5.19zm6.271 0v3.027h5.19v-3.027h-5.19zm6.27 0v3.027H24v-3.027h-5.19zM0 16.81v3.029h5.19v-3.03H0zm6.27 0v3.029h5.189v-3.03h-5.19zm6.271 0v3.029h5.19v-3.03h-5.19zm6.27 0v3.029H24v-3.03h-5.19z"/></svg>',
+    '<svg viewBox="0 0 24 24"><path d="M18.81 4.16v3.03H24V4.16h-5.19zM6.27 8.38v3.027h5.189V8.38h-5.19zm12.54 0v3.027H24V8.38h-5.19zM6.27 12.594v3.027h5.189v-3.027h-5.19zm6.271 0v3.027h5.19v-3.027h-5.19zm6.27 0v3.027H24v-3.027h-5.19zM0 16.81v3.029h5.19v-3.03H0zm6.27 0v3.029h5.189v-3.03h-5.19zm6.271 0v3.029h5.19v-3.03h-5.19zm6.27 0v3.029H24v-3.03h-5.19z"/></svg>',
   amazonMusic:
     '<svg viewBox="0 0 24 24"><path d="M18.6 2 10.8 3.7a.76.76 0 0 0-.6.74v9.6a3.28 3.28 0 0 0-1.55-.39c-1.66 0-3 1.14-3 2.55s1.34 2.55 3 2.55 3-1.14 3-2.55V8.16l6.8-1.5v5.63a3.3 3.3 0 0 0-1.54-.38c-1.66 0-3 1.14-3 2.55s1.34 2.54 3 2.54 3-1.14 3-2.54V2.74A.76.76 0 0 0 18.6 2zM2.06 18.9a.42.42 0 0 0-.14.3c0 .12.06.22.17.32C4.6 21.7 8 23 11.63 23c2.6 0 5.62-.82 7.7-2.36.34-.26.05-.65-.3-.5-2.34.98-4.88 1.46-7.19 1.46-3.42 0-6.73-.94-9.41-2.5-.13-.08-.26-.05-.37-.2z"/></svg>',
 };
 
-const SEARCH_ICON =
-  '<svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14z"/></svg>';
-
-const OUT_ICON =
-  '<svg class="platform-link__out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>';
+const SEARCH_MARK =
+  '<svg class="platform-link__search-mark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14z"/></svg>';
 
 const PLATFORM_LABELS = SUPPORTED_PLATFORMS.reduce(
   (labels, platform) => {
@@ -253,8 +250,12 @@ function getSearchFallbackLink(
   const encodedQuery = encodeURIComponent(query);
 
   switch (platformId) {
-    case "spotify":
-      return `https://open.spotify.com/search/${encodedQuery}`;
+    case "spotify": {
+      // Field filters make the exact track the top result instead of a fuzzy list.
+      const filtered =
+        title && artist ? `track:"${title}" artist:"${artist}"` : query;
+      return `https://open.spotify.com/search/${encodeURIComponent(filtered)}`;
+    }
     case "appleMusic":
       return `https://music.apple.com/search?term=${encodedQuery}`;
     case "tidal":
@@ -323,9 +324,7 @@ function renderResult(result: ResolveResult): void {
   platformEntries.forEach(({ platformId, url, isSearchFallback }) => {
     const link = document.createElement("a");
     const icon = document.createElement("span");
-    const text = document.createElement("span");
     const name = document.createElement("span");
-    const action = document.createElement("span");
     const isSource = platformId === result.sourcePlatform;
 
     link.className = [
@@ -341,23 +340,24 @@ function renderResult(result: ResolveResult): void {
     link.target = "_blank";
     link.rel = "noopener noreferrer";
     link.dataset.platform = platformId;
+    link.title = isSource
+      ? `${PLATFORM_LABELS[platformId]} (original link)`
+      : isSearchFallback
+        ? `Search on ${PLATFORM_LABELS[platformId]}`
+        : `Open in ${PLATFORM_LABELS[platformId]}`;
 
     icon.className = "platform-link__icon";
-    icon.innerHTML = isSearchFallback ? SEARCH_ICON : PLATFORM_ICONS[platformId];
+    icon.innerHTML = PLATFORM_ICONS[platformId];
 
-    text.className = "platform-link__text";
     name.className = "platform-link__name";
     name.textContent = PLATFORM_LABELS[platformId];
-    action.className = "platform-link__action";
-    action.textContent = isSource
-      ? "Original link"
-      : isSearchFallback
-        ? "Search for it"
-        : "Open song";
-    text.append(name, action);
 
-    link.append(icon, text);
-    link.insertAdjacentHTML("beforeend", OUT_ICON);
+    link.append(icon, name);
+
+    if (isSearchFallback) {
+      link.insertAdjacentHTML("beforeend", SEARCH_MARK);
+    }
+
     linksEl.appendChild(link);
   });
 

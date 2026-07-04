@@ -4,8 +4,8 @@
   "description": "Open a shared music link in your preferred listening platform.",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#070810",
-  "theme_color": "#070810",
+  "background_color": "#000000",
+  "theme_color": "#000000",
   "icons": [
     {
       "src": "./icons/icon-192.png",
