@@ -339,6 +339,9 @@ function renderResult(result: ResolveResult): void {
   }
 
   resultEl.hidden = false;
+  // The song is found — the search CTA would compete with "Play on X".
+  // It comes back as soon as the input is edited.
+  resolveButton.hidden = true;
   linksEl.innerHTML = "";
 
   // The recipient's remembered platform becomes a full-width "Play on X"
@@ -579,7 +582,9 @@ function renderHintIcons(): void {
 
 function restoreInitialState(): void {
   const params = new URLSearchParams(window.location.search);
-  const queryUrl = params.get("url");
+  // "url" is our own share param; "su" arrives from the Android share
+  // target when an app passes the link separately from the text.
+  const queryUrl = [params.get("url"), params.get("su")].filter(Boolean).join(" ");
 
   if (queryUrl) {
     urlInput.value = queryUrl;
@@ -589,6 +594,10 @@ function restoreInitialState(): void {
 
 form.addEventListener("submit", (event) => {
   void handleResolve(event);
+});
+
+urlInput.addEventListener("input", () => {
+  resolveButton.hidden = false;
 });
 
 urlInput.addEventListener("paste", () => {
