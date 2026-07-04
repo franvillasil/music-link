@@ -381,10 +381,22 @@ async function resolveSongLink(sourceUrl: string): Promise<SongLinkResponse> {
   requestUrl.searchParams.set("url", sourceUrl);
   requestUrl.searchParams.set("userCountry", getCountryCode());
 
-  const response = await fetch(requestUrl);
+  let response: Response;
+
+  try {
+    response = await fetch(requestUrl);
+  } catch {
+    throw new Error("network_error");
+  }
 
   if (!response.ok) {
-    throw new Error(response.status === 404 ? "not_found" : "provider_error");
+    if (response.status === 404 || response.status === 400) {
+      throw new Error("not_found");
+    }
+    if (response.status === 429) {
+      throw new Error("rate_limited");
+    }
+    throw new Error(`provider_error_${response.status}`);
   }
 
   return response.json() as Promise<SongLinkResponse>;
@@ -402,15 +414,20 @@ async function findAppleMusicFallback(title?: string, artist?: string): Promise<
   requestUrl.searchParams.set("limit", "1");
   requestUrl.searchParams.set("country", getCountryCode());
 
-  const response = await fetch(requestUrl);
+  // Best-effort: never let this secondary lookup break the main result.
+  try {
+    const response = await fetch(requestUrl);
 
-  if (!response.ok) {
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = (await response.json()) as ITunesSearchResponse;
+    const match = data.results?.[0];
+    return match?.trackViewUrl || null;
+  } catch {
     return null;
   }
-
-  const data = (await response.json()) as ITunesSearchResponse;
-  const match = data.results?.[0];
-  return match?.trackViewUrl || null;
 }
 
 async function resolveMusicUrl(sourceUrl: string): Promise<ResolveResult> {
@@ -468,12 +485,21 @@ async function handleResolve(event?: Event): Promise<void> {
     renderResult(result);
     updateBrowserUrl(sourceUrl);
   } catch (error) {
-    const message =
-      error instanceof Error && error.message === "not_found"
-        ? "No matching song was found for this link."
-        : getApiBase()
-          ? "Could not resolve this link right now. Try again in a moment."
-          : "This site needs the music link API proxy configured before public links can be resolved.";
+    const code = error instanceof Error ? error.message : "unknown";
+    let message: string;
+
+    if (code === "not_found") {
+      message = "No matching song was found for this link.";
+    } else if (code === "rate_limited") {
+      message = "The match service is busy right now. Wait a minute and try again.";
+    } else if (code === "network_error") {
+      message = "Could not reach the server. Check your connection and try again.";
+    } else if (!getApiBase()) {
+      message = "This site needs the music link API proxy configured before public links can be resolved.";
+    } else {
+      message = `Something went wrong resolving this link (${code}). Try again in a moment.`;
+    }
+
     setStatus(message, "error");
   } finally {
     setLoading(false);

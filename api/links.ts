@@ -53,14 +53,43 @@ export default async function handler(
   upstreamUrl.searchParams.set("url", sourceUrl);
   upstreamUrl.searchParams.set("userCountry", userCountry);
 
-  const upstreamResponse = await fetch(upstreamUrl, {
-    headers: {
-      accept: "application/json",
-    },
-  });
+  let upstreamResponse: globalThis.Response | null = null;
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      upstreamResponse = await fetch(upstreamUrl, {
+        headers: {
+          accept: "application/json",
+        },
+      });
+    } catch {
+      upstreamResponse = null;
+    }
+
+    const retryable =
+      !upstreamResponse || upstreamResponse.status === 429 || upstreamResponse.status >= 500;
+
+    if (!retryable) {
+      break;
+    }
+
+    if (attempt === 0) {
+      await new Promise((resolve) => setTimeout(resolve, 700));
+    }
+  }
+
+  if (!upstreamResponse) {
+    response.setHeader("cache-control", "no-store");
+    response.status(502).json({ error: "upstream_unreachable" });
+    return;
+  }
+
   const body = await upstreamResponse.text();
 
-  response.setHeader("cache-control", "public, max-age=86400");
+  response.setHeader(
+    "cache-control",
+    upstreamResponse.ok ? "public, max-age=86400" : "no-store",
+  );
   response.setHeader(
     "content-type",
     upstreamResponse.headers.get("content-type") || "application/json",
