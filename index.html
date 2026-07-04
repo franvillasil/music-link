@@ -7,21 +7,17 @@
       name="description"
       content="Paste a music link and open the same song in Spotify, Apple Music, TIDAL, YouTube Music, Deezer, or Amazon Music."
     />
-    <meta name="theme-color" content="#f7f2e7" />
-    <title>Open Music Link</title>
+    <meta name="theme-color" content="#08090d" />
+    <title>Music Link</title>
     <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./styles.css?v=20260704-2" />
   </head>
   <body>
     <main class="shell">
       <section class="hero" aria-labelledby="page-title">
         <div class="hero__copy">
           <p class="eyebrow">Music link converter</p>
-          <h1 id="page-title">Open a song wherever you listen.</h1>
-          <p class="lead">
-            Paste a Spotify, Apple Music, TIDAL, YouTube Music, Deezer, or Amazon Music link
-            and get direct open buttons for the platforms found.
-          </p>
+          <h1 id="page-title">Paste. Pick. Play.</h1>
         </div>
       </section>
 
@@ -40,20 +36,8 @@
             />
           </label>
 
-          <label class="field field--compact">
-            <span>My platform</span>
-            <select id="preferred-platform" name="platform">
-              <option value="spotify">Spotify</option>
-              <option value="appleMusic">Apple Music</option>
-              <option value="tidal">TIDAL</option>
-              <option value="youtubeMusic">YouTube Music</option>
-              <option value="deezer">Deezer</option>
-              <option value="amazonMusic">Amazon Music</option>
-            </select>
-          </label>
-
           <button class="button button--primary" id="resolve-button" type="submit">
-            Search links
+            Convert
           </button>
         </form>
 
@@ -62,7 +46,7 @@
         <article class="result" id="result" hidden>
           <img class="result__artwork" id="result-artwork" alt="" />
           <div class="result__meta">
-            <p class="result__label" id="result-label">Song found</p>
+            <p class="result__label" id="result-label">Detected</p>
             <h2 id="result-title"></h2>
             <p id="result-artist"></p>
           </div>
@@ -84,7 +68,7 @@
       </section>
     </main>
 
-    <script src="./config.js"></script>
-    <script src="./dist/app.js" defer></script>
+    <script src="./config.js?v=20260704-2"></script>
+    <script src="./dist/app.js?v=20260704-2" defer></script>
   </body>
 </html>
