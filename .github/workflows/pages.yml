@@ -42,7 +42,7 @@ jobs:
       - name: Prepare static artifact
         run: |
           mkdir -p _site/dist
-          cp index.html styles.css manifest.webmanifest _site/
+          cp index.html styles.css manifest.webmanifest config.js _site/
           cp dist/app.js _site/dist/app.js
 
       - name: Setup Pages

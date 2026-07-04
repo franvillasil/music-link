@@ -113,6 +113,11 @@ function getCountryCode(): string {
   return country && /^[A-Z]{2}$/i.test(country) ? country.toUpperCase() : "US";
 }
 
+function getApiBase(): string {
+  const config = window as Window & { MUSIC_LINK_API_BASE?: string };
+  return (config.MUSIC_LINK_API_BASE || "").replace(/\/$/, "");
+}
+
 function normalizeUrl(rawUrl: string): string {
   const trimmedUrl = rawUrl.trim();
   const parsedUrl = new URL(trimmedUrl);
@@ -249,7 +254,8 @@ function renderResult(result: ResolveResult): void {
 }
 
 async function resolveSongLink(sourceUrl: string): Promise<SongLinkResponse> {
-  const requestUrl = new URL(SONG_LINK_ENDPOINT);
+  const apiBase = getApiBase();
+  const requestUrl = new URL(apiBase ? `${apiBase}/links` : SONG_LINK_ENDPOINT);
   requestUrl.searchParams.set("url", sourceUrl);
   requestUrl.searchParams.set("userCountry", getCountryCode());
 
@@ -341,7 +347,9 @@ async function handleResolve(event?: Event): Promise<void> {
     const message =
       error instanceof Error && error.message === "not_found"
         ? "No matching song was found for this link."
-        : "Could not resolve this link right now. Try again in a moment.";
+        : getApiBase()
+          ? "Could not resolve this link right now. Try again in a moment."
+          : "This site needs the music link API proxy configured before public links can be resolved.";
     setStatus(message, "error");
   } finally {
     setLoading(false);
