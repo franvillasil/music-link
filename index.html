@@ -12,7 +12,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
-    <link rel="stylesheet" href="./styles.css?v=20260704-6" />
+    <link rel="stylesheet" href="./styles.css?v=20260704-7" />
   </head>
   <body>
     <div class="glow glow--one" aria-hidden="true"></div>
@@ -21,11 +21,7 @@
 
     <main class="shell">
       <header class="brand">
-        <div class="brand__mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M9 18.5a3 3 0 1 1-2-2.83V6.2a1 1 0 0 1 .76-.97l9-2.2A1 1 0 0 1 18 4v10.67a3 3 0 1 1-2-2.83V7.05l-7 1.71z" />
-          </svg>
-        </div>
+        <img class="brand__mark" src="./icons/icon-192.png" alt="" width="64" height="64" />
         <h1 class="brand__name">Music<span>Link</span></h1>
         <p class="brand__tagline">Any song. Every platform.</p>
       </header>
@@ -59,7 +55,13 @@
           </button>
         </form>
 
-        <p class="hint">Works with Spotify, Apple Music, TIDAL, YouTube Music, Deezer &amp; Amazon Music links.</p>
+        <p
+          class="hint"
+          id="hint"
+          aria-label="Works with Spotify, Apple Music, TIDAL, YouTube Music, Deezer and Amazon Music"
+        >
+          <span class="hint__label">Works with</span>
+        </p>
 
         <div class="loader" id="loader" hidden aria-hidden="true">
           <span></span><span></span><span></span><span></span><span></span>
@@ -96,7 +98,7 @@
       </footer>
     </main>
 
-    <script src="./config.js?v=20260704-6"></script>
-    <script src="./dist/app.js?v=20260704-6" defer></script>
+    <script src="./config.js?v=20260704-7"></script>
+    <script src="./dist/app.js?v=20260704-7" defer></script>
   </body>
 </html>

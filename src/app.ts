@@ -112,6 +112,7 @@ const form = queryElement<HTMLFormElement>("#resolver-form");
 const urlInput = queryElement<HTMLInputElement>("#music-url");
 const resolveButton = queryElement<HTMLButtonElement>("#resolve-button");
 const pasteButton = queryElement<HTMLButtonElement>("#paste-button");
+const hintEl = queryElement<HTMLParagraphElement>("#hint");
 const loaderEl = queryElement<HTMLElement>("#loader");
 const statusEl = queryElement<HTMLParagraphElement>("#status");
 const resultEl = queryElement<HTMLElement>("#result");
@@ -513,6 +514,16 @@ function updateBrowserUrl(sourceUrl: string): void {
   window.history.replaceState({}, "", nextUrl);
 }
 
+function renderHintIcons(): void {
+  SUPPORTED_PLATFORMS.forEach((platform) => {
+    const icon = document.createElement("span");
+    icon.className = "hint__icon";
+    icon.title = platform.label;
+    icon.innerHTML = PLATFORM_ICONS[platform.id];
+    hintEl.appendChild(icon);
+  });
+}
+
 function restoreInitialState(): void {
   const params = new URLSearchParams(window.location.search);
   const queryUrl = params.get("url");
@@ -565,4 +576,5 @@ copyShareButton.addEventListener("click", async () => {
   }
 });
 
+renderHintIcons();
 restoreInitialState();
