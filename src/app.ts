@@ -255,7 +255,10 @@ function renderResult(result: ResolveResult): void {
 
 async function resolveSongLink(sourceUrl: string): Promise<SongLinkResponse> {
   const apiBase = getApiBase();
-  const requestUrl = new URL(apiBase ? `${apiBase}/links` : SONG_LINK_ENDPOINT);
+  const requestUrl = new URL(
+    apiBase ? `${apiBase}/links` : SONG_LINK_ENDPOINT,
+    window.location.origin,
+  );
   requestUrl.searchParams.set("url", sourceUrl);
   requestUrl.searchParams.set("userCountry", getCountryCode());
 
