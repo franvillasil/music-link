@@ -7,7 +7,7 @@
     "build": "tsc src/app.ts --target ES2020 --module ES2020 --lib DOM,ES2020 --outDir dist --skipLibCheck --strict --pretty false",
     "check": "npm run build",
     "serve": "npm run build && node --experimental-strip-types scripts/serve.ts",
-    "vercel-build": "npm run build && rm -rf public && mkdir -p public/dist && cp index.html styles.css manifest.webmanifest public/ && cp dist/app.js public/dist/app.js && printf 'window.MUSIC_LINK_API_BASE = \"/api\";\\n' > public/config.js"
+    "vercel-build": "npm run build && rm -rf public && mkdir -p public/dist public/icons && cp index.html styles.css manifest.webmanifest public/ && cp icons/icon-192.png icons/icon-512.png icons/apple-touch-icon.png public/icons/ && cp dist/app.js public/dist/app.js && printf 'window.MUSIC_LINK_API_BASE = \"/api\";\\n' > public/config.js"
   },
   "devDependencies": {
     "typescript": "^5.3.3"
