@@ -122,8 +122,8 @@ const titleEl = queryElement<HTMLHeadingElement>("#result-title");
 const artistEl = queryElement<HTMLParagraphElement>("#result-artist");
 const linksEl = queryElement<HTMLElement>("#links");
 const shareEl = queryElement<HTMLElement>("#share");
-const shareUrlInput = queryElement<HTMLInputElement>("#share-url");
-const copyShareButton = queryElement<HTMLButtonElement>("#copy-share-url");
+const shareButton = queryElement<HTMLButtonElement>("#share-button");
+const shareButtonLabel = queryElement<HTMLElement>("#share-button-label");
 
 function isPlatformId(value: string): value is PlatformId {
   return Object.prototype.hasOwnProperty.call(PLATFORM_LABELS, value);
@@ -369,7 +369,6 @@ function renderResult(result: ResolveResult): void {
 
   setStatus("");
 
-  shareUrlInput.value = getShareUrl(state.currentSourceUrl);
   shareEl.hidden = false;
 }
 
@@ -563,16 +562,35 @@ pasteButton.addEventListener("click", async () => {
   urlInput.focus();
 });
 
-copyShareButton.addEventListener("click", async () => {
+shareButton.addEventListener("click", async () => {
+  const shareUrl = getShareUrl(state.currentSourceUrl);
+  const title = state.currentResult?.title;
+  const artist = state.currentResult?.artist;
+
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: [title, artist].filter(Boolean).join(" — ") || "Music Link",
+        url: shareUrl,
+      });
+      return;
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        return;
+      }
+    }
+  }
+
   try {
-    await navigator.clipboard.writeText(shareUrlInput.value);
-    copyShareButton.textContent = "Copied";
+    await navigator.clipboard.writeText(shareUrl);
+    shareButton.classList.add("is-copied");
+    shareButtonLabel.textContent = "Link copied!";
     window.setTimeout(() => {
-      copyShareButton.textContent = "Copy";
-    }, 1400);
+      shareButton.classList.remove("is-copied");
+      shareButtonLabel.textContent = "Share converter link";
+    }, 1600);
   } catch {
-    shareUrlInput.select();
-    document.execCommand("copy");
+    setStatus(shareUrl);
   }
 });
 

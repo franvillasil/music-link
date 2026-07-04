@@ -12,7 +12,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
-    <link rel="stylesheet" href="./styles.css?v=20260704-7" />
+    <link rel="stylesheet" href="./styles.css?v=20260704-8" />
   </head>
   <body>
     <div class="glow glow--one" aria-hidden="true"></div>
@@ -83,13 +83,14 @@
         <section class="links" id="links" aria-label="Available platforms"></section>
 
         <section class="share" id="share" hidden>
-          <span class="share__label">Share this converter link</span>
-          <div class="copy-row">
-            <input id="share-url" type="text" readonly />
-            <button class="button button--secondary" id="copy-share-url" type="button">
-              Copy
-            </button>
-          </div>
+          <button class="button button--outline" id="share-button" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7" />
+              <path d="M16 6 12 2 8 6" />
+              <path d="M12 2v13" />
+            </svg>
+            <span id="share-button-label">Share converter link</span>
+          </button>
         </section>
       </section>
 
@@ -98,7 +99,7 @@
       </footer>
     </main>
 
-    <script src="./config.js?v=20260704-7"></script>
-    <script src="./dist/app.js?v=20260704-7" defer></script>
+    <script src="./config.js?v=20260704-8"></script>
+    <script src="./dist/app.js?v=20260704-8" defer></script>
   </body>
 </html>

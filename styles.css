@@ -7,7 +7,9 @@
   --muted: #8e8e99;
   --faint: #5c5c66;
   --line: rgba(255, 255, 255, 0.08);
-  --primary: #36f5a2;
+  --accent: #fa6a60;
+  --accent-strong: #f4502f;
+  --green: #64d450;
   --shadow: 0 24px 70px rgba(0, 0, 0, 0.7);
   --radius: 18px;
 }
@@ -56,7 +58,7 @@ input {
   top: -220px;
   left: 50%;
   margin-left: -260px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.05), transparent 70%);
+  background: radial-gradient(circle, rgba(250, 106, 96, 0.06), transparent 70%);
 }
 
 .glow--two {
@@ -124,7 +126,7 @@ input {
 }
 
 .brand__name span {
-  color: var(--muted);
+  color: var(--accent);
 }
 
 .brand__tagline {
@@ -182,8 +184,8 @@ input::placeholder {
 }
 
 input:focus {
-  border-color: rgba(255, 255, 255, 0.28);
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05);
+  border-color: rgba(250, 106, 96, 0.65);
+  box-shadow: 0 0 0 4px rgba(250, 106, 96, 0.12);
 }
 
 .paste-button {
@@ -238,11 +240,38 @@ input:focus {
 }
 
 .button--primary {
-  background: linear-gradient(135deg, var(--primary), #22d3ee);
-  color: #04130b;
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  color: #1c0805;
   padding: 0 20px;
   font-size: 1.02rem;
-  box-shadow: 0 10px 34px rgba(54, 245, 162, 0.22);
+  box-shadow: 0 10px 34px rgba(250, 106, 96, 0.28);
+}
+
+.button--outline {
+  width: 100%;
+  min-height: 52px;
+  background: transparent;
+  border-color: rgba(250, 106, 96, 0.5);
+  color: var(--accent);
+  padding: 0 18px;
+  font-size: 0.95rem;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+}
+
+.button--outline svg {
+  width: 17px;
+  height: 17px;
+}
+
+.button--outline:hover {
+  filter: none;
+  background: rgba(250, 106, 96, 0.08);
+  border-color: var(--accent);
+}
+
+.button--outline.is-copied {
+  border-color: rgba(100, 212, 80, 0.6);
+  color: var(--green);
 }
 
 .button--secondary {
@@ -293,8 +322,8 @@ input:focus {
 .loader span {
   width: 5px;
   border-radius: 4px;
-  background: var(--text);
-  opacity: 0.8;
+  background: var(--accent);
+  opacity: 0.9;
   animation: equalize 900ms ease-in-out infinite;
 }
 
@@ -489,30 +518,7 @@ input:focus {
 /* ---------- share ---------- */
 
 .share {
-  margin-top: 18px;
-  padding-top: 16px;
-  border-top: 1px solid var(--line);
-  display: grid;
-  gap: 8px;
-}
-
-.share__label {
-  color: var(--muted);
-  font-size: 0.82rem;
-  font-weight: 700;
-}
-
-.copy-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 10px;
-}
-
-.copy-row input {
-  min-height: 46px;
-  padding: 0 14px;
-  font-size: 0.88rem;
-  color: var(--muted);
+  margin-top: 14px;
 }
 
 .footer {
@@ -580,7 +586,4 @@ input:focus {
     height: 76px;
   }
 
-  .copy-row {
-    grid-template-columns: 1fr;
-  }
 }
